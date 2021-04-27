@@ -1,0 +1,917 @@
+.text
+
+MAIN:
+and $sp, $zero
+lui $sp, 0xF0
+ori $sp, 0x00
+lui $ra, 0xF0
+ori $ra, 0x00
+START:
+# s1 will hold first int value and s2 will hold second int value
+and $s1, $zero
+and $s2, $zero
+#write the first prompt to enter number
+la $a1, PROMPT1
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+
+#read the number
+# create char array of 16 on the stack
+# set that stack address to input register
+addi $sp, -16
+and $a1, $zero
+or $a1, $sp
+addi $sp, -2
+sw $ra,$sp
+jal READS
+lw $ra,$sp
+addi $sp, 2
+
+#convert string to int
+# a1 is restored by READS on exit so no need to set it again.
+# a1 is starting address of first char array
+addi $sp, -2
+sw $ra,$sp
+jal CONVSTR2INT
+la $t5, START
+jrne $v2, $zero, $t5
+lw $ra,$sp
+addi $sp, 2
+and $s1, $zero
+or $s1, $v1
+#clear char array
+addi $sp, 16
+
+#write the second prompt to enter number
+la $a1, PROMPT2
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+
+#read the second number
+# create char array of 16 on the stack
+# set that stack address to input register
+addi $sp, -16
+and $a1, $zero
+or $a1, $sp
+addi $sp, -2
+sw $ra,$sp
+jal READS
+lw $ra,$sp
+addi $sp, 2
+
+
+#convert string to int
+# a1 is restored by READS on exit so no need to set it again.
+# a1 is starting address of first char array
+addi $sp, -2
+sw $ra,$sp
+jal CONVSTR2INT
+la $t5, START
+jrne $v2, $zero, $t5
+lw $ra,$sp
+addi $sp, 2
+and $s2, $zero
+or $s2, $v1
+#clear char array
+addi $sp, 16
+
+#call multiplication of numbers (PROD)
+and $a1, $zero
+or $a1, $s1
+and $a2, $zero
+or $a2, $s2
+addi $sp, -2
+sw $ra,$sp
+jal PROD
+lw $ra,$sp
+addi $sp, 2
+#at this point store the HI($v2) into $s2 and
+#LO($v1) into $s1
+and $s2, $zero
+or $s2, $v2
+and $s1, $zero
+or $s1, $v1
+
+lui $t6,0x80
+ori $t6,0x00
+la $t5, NEGLIMIT
+jreq $t6, $v1, $t5
+
+
+#call convert int to string
+addi $sp, -16
+and $a1, $zero
+and $a2, $zero
+or $a1, $s1
+or $a2, $sp
+addi $sp, -2
+sw $ra,$sp
+jal CONVINT2STR
+lw $ra,$sp
+addi $sp, 2
+
+#write the result prompt to enter number
+la $a1, RESPROMPT
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+
+#$a2 contains the starting address of converted string
+#restored by CONVINT2STR. we can use $sp or $a2 for
+and $a1, $zero
+or $a1, $a2
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+addi $sp, 16
+j START
+
+NEGLIMIT:
+#write the result prompt to enter number
+la $a1, RESPROMPT
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+la $a1, MAXNEGATIVE
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+lw $ra,$sp
+addi $sp, 2
+j START
+
+EXITMAIN:
+jreq $zero, $zero, $ra
+
+PROD:
+#put the save registers($s1,$s2), $a1 and $a2 registers on stack
+# $a1 contains the multiplicand $a2 contains multiplier
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+addi $sp,-2
+sw $a1,$sp
+addi $sp,-2
+sw $a2,$sp
+#place holder to store temp variable for denoting -ve
+and $t2, $zero
+addi $sp, -2
+sw $t2, $sp
+and $v2, $zero
+and $t6, $zero
+# put the input register values in $s1, $s2
+and $s1,$zero
+or $s1, $a1
+and $s2, $zero
+or $s2, $a2
+and $v1, $zero
+la $t5, ENDPROD
+jreq $s2, $zero, $t5
+jreq $s1, $zero, $t5
+la $t5, P1
+slt $s1, $zero
+jrne $base,$zero, $t5
+slt $s2, $zero
+jreq $base, $zero, $t5
+# reverse multiplier and multiplicand
+# and store 1 on stack to indicate one of them is -ve
+and $t3, $zero
+or $t3, $s1
+and $s1, $zero
+or $s1, $s2
+and $s2, $zero
+or $s2, $t3
+addi $t2 ,1
+sw $t2,$sp
+P1:
+la $t5, P2
+slt $s1, $zero
+jreq $base,$zero, $t5
+slt $s2, $zero
+jrne $base, $zero, $t5
+and $t2, $zero
+addi $t2 ,1
+sw $t2,$sp
+P2:
+# check if both multiplicand and multiplier are < 0
+# if they are just convert both +ve
+la $t5, P3
+slt $s1, $zero
+jreq $base,$zero, $t5
+slt $s2, $zero
+jreq $base, $zero, $t5
+nor $s1, $zero
+addi $s1, 1
+nor $s2, $zero
+addi $s2, 1
+P3:
+la $t5, ENDPROD
+and $t3, $zero
+addi $t3, 16
+#if it is 16th iteration then multiplication is done
+jreq $t6,$t3,$t5
+#store shift amount in register
+and $t3 ,$zero
+addi $t3,1
+#v1 is like LO register and $v2 is HI register
+#to make it 32 bit multiplication
+#initially store multiplier in $v1
+and $v1,$zero
+or $v1,$s2
+#check the lsb of multiplier
+#if it is 1 then add multiplicand($s1) to $v1 else skip
+and $t4,$zero
+addi $t4,1
+and $t4,$s2
+la $t5, P4
+jrne $t4 ,$t3,$t5
+#add multiplicand to HI ($v2)
+add $v2, $s1
+P4:
+#check the lsb of HI($v2) to add to msb of LO
+and $t4,$zero
+addi $t4,1
+and $t4,$v2
+#shift product $v2 (HI) register and multiplier ($s2) by 1
+srl $v2, $t3
+srl $s2, $t3
+#if lsb of HI($v2) is 1 then it has to added to $v1
+and $t2,$zero
+addi $t2, 15
+#shift the lsb of HI($v2) by 15 to make it msb of LO($v1)
+sll $t4 ,$t2
+add $s2,$t4
+addi $t6, 1
+and $v1,$zero
+or $v1,$s2
+j P3
+ENDPROD:
+addi $sp, 2
+lw $a1,$sp
+addi $sp,2
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+CONVSTR2INT:
+#put the save registers($s1,$s2), $a1 and $a2 registers on stack
+# $a1 contains the address to store the string
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+addi $sp,-2
+sw $a1,$sp
+and $s1,$zero
+
+#initialize $s1 to input parameter i.e. address of string
+add $s1, $a1
+#initialize index of char array($s2) to 0
+and $v1, $zero
+and $s2, $zero
+
+#check if the string is empty
+lb $t1,$s1
+la $t5, CHK
+jrne $t1, $zero, $t5
+
+# store the return address for this function on the stack
+# if it is null initialize input register to EMPTYSTR constant label
+# stored in .data call WRITES
+la $a1, EMPTYSTR
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+#restore the return address from stack
+lw $ra,$sp
+addi $sp, 2
+#return -1 since no conversion is done
+addi $v2, -1
+j ENDCONVSTR
+
+CHK:
+# create two position on stack to store two variables
+# first one for '-' and other for number of digits
+addi $sp, -2
+sw $zero , $sp
+
+addi $sp, -2
+sw $zero, $sp
+
+CVLOOP:
+la $t5, CENDLOOP
+lb $t1, $s1
+and $t2, $zero
+addi $t2, 10
+jreq $t1, $t2, $t5
+jreq $t1, $zero, $t5
+and $t2, $zero
+addi $t2, 0xd
+jreq $t1, $t2, $t5
+#check if index=0 and the character is ’-’
+la $t5, CV1
+jrne $s2, $zero, $t5
+and $t2, $zero
+addi $t2, 45
+jrne $t1, $t2, $t5
+#if it is ’-’, store as 1 in $t3 and then load it on stack
+and $t3,$zero
+addi $t3, 1
+
+# move the stack because the last one is for number of digits
+# and the one before is for '-' . we need to store here.
+addi $sp, 2
+sw $t3, $sp
+addi $sp, -2
+
+addi $s2, 1
+addi $s1, 1
+j CVLOOP
+
+
+CV1:
+#check the number of digits if >5 then it is more than 32767
+la $t5, CVOFRANGE
+lw $t3, $sp
+addi $t3, 1
+and $t2, $zero
+addi $t2, 5
+slt $t2, $t3
+sw $t3, $sp
+jrne $base, $zero, $t5
+
+# check if integer value($v1) > 0xccc and the current digit($t1) >7
+# if it is print "out of range" constant string and exit the function
+la $t5, CV2
+lui $t3,0x0c
+ori $t3,0xcc
+
+la $t5 , CVEDGE
+jreq $t3, $v1, $t5
+la $t5, CV2
+slt $t3, $v1
+jreq $base, $zero,$t5
+la $t5, CVOFRANGE
+jrne $t3, $v1, $t5
+CVEDGE:
+
+#check if number is +ve/-ve for range check
+la $t5, CHKPOS
+addi $sp, 2
+lw $t4, $sp
+addi $sp, -2
+and $t6, $zero
+addi $t6, 1
+jrne $t4, $t6, $t5
+
+#check if it is greater than -32768
+la $t5, CV2
+and $t3,$zero
+addi $t3, 56
+slt $t3, $t1
+jreq $base,$zero, $t5
+j CVOFRANGE
+
+CHKPOS:
+#check if it is greater than 32767
+la $t5, CV2
+and $t3,$zero
+addi $t3, 55
+slt $t3, $t1
+jreq $base,$zero, $t5
+
+CVOFRANGE:
+#print out of range message from the label stored in data
+la $a1, OUTOFRANGE
+addi $sp, -2
+sw $ra,$sp
+jal WRITES
+#restore the return address from stack
+lw $ra,$sp
+addi $sp, 2
+#set return value as non success
+addi $v2, -1
+# remove the stack positon for  '-' and number of digits
+addi $sp ,2
+addi $sp ,2 
+j ENDCONVSTR
+
+CV2:
+#store current character and return address on stack
+#before calling PROD function
+addi $sp, -2
+sw $t1,$sp
+addi $sp, -2
+sw $ra,$sp
+#set the input registers to current integer value and 10 and $a1, $zero
+and $a2, $zero
+and $a1, $zero
+add $a1, $v1
+addi $a2, 10
+jal PROD
+#restore return address and current character
+lw $ra,$sp
+addi $sp, 2
+lw $t1,$sp
+addi $sp, 2
+addi $t1,-48
+add $v1, $t1
+#increment to move to next character in array
+addi $s1, 1
+addi $s2, 1
+j CVLOOP
+
+CENDLOOP:
+# remove the stack positon for number of digits
+addi $sp, 2
+
+#return success in $v2
+#return int value in $v1
+and $v2, $zero
+addi $v2, 0
+la $t5, ENDCONVSTR
+lw $t3,$sp
+addi $sp, 2
+and $t6, $zero
+addi $t6, 1
+jrne $t3, $t6, $t5
+nor $v1, $zero
+addi $v1,1
+
+ENDCONVSTR:
+#addi $sp, 2
+
+# restore the register with contents on stack.
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+CONVINT2STR:
+#integer value is passed in $a1
+#address to store the converted string is passed in $a2
+#put the save registers($s1,$s2) on to the stack
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+#put the contents of $a1,$a2 register on to stack just incase
+addi $sp,-2
+sw $a1,$sp
+addi $sp,-2
+sw $a2,$sp
+#initialize $s1 to passed in string address and t1 to passed in integer value.
+and $s1,$zero
+and $t1,$zero
+or $t1,$a1
+or $s1,$a2
+
+#lui $t6 , 0x80
+#ori $t6, 0x00
+#la $t5, STARTCONV
+#jrne $t6, $t1, $t5
+#la $t6, MAXRANGE
+
+STARTCONV:
+#create a char array on the stack and store the address in $s2
+addi $sp,-16
+and $s2,$zero
+add $s2,$sp
+#check if value is zero. if it is 0 then add ascii value of ’0’ and jump to end.
+#if it not 0 then jump to checking sign (SIGNCHK)
+la $t5, SIGNCHK
+jrne $t1,$zero,$t5
+and $t2,$zero
+addi $t2,48
+sb $t2,$s1
+addi $s1, 1
+j ENDCONV
+SIGNCHK:
+#check if integer value is negative
+la $t5, SETUPDIV
+slt $t1,$zero
+#if not negative jump to SETUPDIV
+jreq $base,$zero,$t5
+#if negative add ’-’ to first byte of passed in address
+and $t2,$zero
+addi $t2,45
+sb $t2, $s1
+addi $s1, 1
+#set up division with 10
+SETUPDIV:
+and $a1,$zero
+add $a1,$t1
+# store the return address for this function on the stack
+#initialize return registers to 0 and call DIV
+addi $sp, -2
+sw $ra,$sp
+and $v1,$zero
+and $v2,$zero
+jal DIV
+#restore the return address from stack
+lw $ra,$sp
+addi $sp, 2
+# DIV routine returns remainder in $v1 and quotient in $v2.
+# add ’0’ ascii value to remainder to get the ascii value of digit
+addi $v1, 48
+sb $v1, $s2
+#increment the char array address
+addi $s2, 1
+#set the quotient in $v2 as new dividend
+and $t1,$zero
+add $t1, $v2
+#if dividend is not 0 then call the DIV routine again
+la $t5, SETUPDIV
+jrne $t1, $zero, $t5
+la $t5,SREVERSE
+SREVERSE:
+addi $s2,-1
+lb $t2,$s2
+sb $t2, $s1
+addi $s1, 1
+slt $sp,$s2
+jrne $base,$zero,$t5
+ENDCONV:
+#put null termination to string
+#and $t2,$zero
+#addi $t2,10
+#sb $t2, $s1
+and $t2,$zero
+sb $t2, $s1
+#clear the char array on stack
+addi $sp, 16
+#restore all the save registers and input parameter registers
+lw $a2,$sp
+addi $sp,2
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+DIV:
+#dividend is passed in input register $a1
+#put the save registers($s1,$s2) and $a1 on to the stack
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+addi $sp,-2
+sw $a1,$sp
+
+#intialize return values v1,v2 and temporary variable
+and $v1,$zero
+and $v2, $zero
+
+#initialize divisor $s2 = 10
+and $s2,$zero
+addi $s2,10
+#initialize dividend $s1 = $a1
+and $s1,$zero
+add $s1,$a1
+and $t1, $zero
+
+#if dividend = 0, just return in this case
+la $t5, ENDDIV
+jreq $s1, $zero, $t5
+
+#check if dividend < 0
+la $t5, DV1
+slt $s1,$zero
+jreq $base,$zero,$t5
+
+#if dividend < 0 make it positive and store that it is negative
+addi $t1 ,1
+nor $s1,$zero
+addi $s1, 1
+
+# if dividend= divisor
+DV1:
+la $t5, DV2
+jrne $s1,$s2, $t5
+addi $v2, 1
+addi $v1, 0
+j ENDDIV
+
+#if dividend < divisor return dividend
+DV2:
+la $t5, DV3
+slt $s1,$s2
+jreq $base, $zero, $t5
+addi $v2, 0
+add $v1, $s1
+j ENDDIV
+
+
+DV3:
+and $v1, $zero
+add $v1, $t1
+and $t1, $zero
+and $t2, $zero
+and $t6, $zero
+add $t2, $s1
+
+
+lui $t3, 0x80
+ori $t3, 0x00
+and $t3, $t2
+and $t4, $zero
+addi $t4, 15
+srl $t3 ,$t4
+and $t4, $zero
+addi $t4, 1
+sll $t1, $t4
+sll $t2, $t4
+add $t1,$t3
+
+DV4:
+and $t4, $zero
+addi $t4, 16
+la $t5, DV6
+jreq $t6, $t4, $t5
+
+sub $t1, $s2
+slt $t1, $zero
+la $t5, DV5
+jrne $base, $zero, $t5
+
+and $t4, $zero
+addi $t4, 1
+sll $t1, $t4
+lui $t3, 0x80
+ori $t3, 0x00
+and $t3, $t2
+and $t4, $zero
+addi $t4, 15
+srl $t3 ,$t4
+add $t1,$t3
+and $t4, $zero
+addi $t4, 1
+sll $t2, $t4
+addi $t2,1
+addi $t6, 1
+j DV4
+
+DV5:
+add $t1, $s2
+and $t4, $zero
+addi $t4, 1
+sll $t1, $t4
+lui $t3, 0x80
+ori $t3, 0x00
+and $t3, $t2
+and $t4, $zero
+addi $t4, 15
+srl $t3 ,$t4
+add $t1,$t3
+and $t4, $zero
+addi $t4, 1
+sll $t2, $t4
+addi $t6, 1
+j DV4
+
+#restore the negative sign if dividend < 0
+DV6:
+and $t4, $zero
+addi $t4,1
+srl $t1, $t4
+and $t6, $zero
+add $t6, $v1
+and $v1, $zero
+add $v1, $t1
+and $t4, $zero
+addi $t4,1
+and $v2, $zero
+add $v2,$t2
+la $t5, ENDDIV
+jrne $t6, $t4, $t5
+nor $t2,$zero
+addi $t2,1
+and $v2, $zero
+add $v2, $t2
+
+#division ends and restore stack
+ENDDIV:
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+WRITES:
+#address of starting address of string is put in $a1 before calling this function
+#put the save registers($s1,$s2) on to the stack
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+and $s1,$zero
+#put the passed in string address in $a1 to one of save register($s1) so that this routine continues to use $s1.
+or $s1,$a1
+#put the contents of $a1 register on to stack just incase
+addi $sp,-2
+sw $a1,$sp
+WSTART:
+and $a1, $zero
+la $t5, ENDWRITE
+#load the character at address pointed by $s1 into $a1 to prepare for passing to WRITEC
+lb $a1,$s1
+#if the character read is null then reached the end of the string. return to calling function
+jreq $a1, $zero, $t5
+
+and $t6,$zero
+addi $t6,0xd
+jreq $a1, $t6,$t5
+
+# if the character read is not null then prepare for calling WRITEC.
+# store the return address for this function on the stack
+addi $sp,-2
+sw $ra,$sp
+#call WRITEC function
+jal WRITEC
+#restore the return address from stack pointer
+lw $ra,$sp
+addi $sp,2
+#increment the address to move to next character in string
+addi $s1,1
+j WSTART
+ENDWRITE:
+#write carriage return
+addi $sp, -2
+sw $ra,$sp
+and $a1, $zero
+addi $a1, 13
+jal WRITEC
+lw $ra,$sp
+addi $sp, 2
+
+#write line feed
+addi $sp, -2
+sw $ra,$sp
+and $a1, $zero
+addi $a1, 10
+jal WRITEC
+lw $ra,$sp
+addi $sp, 2
+
+#restore the save registers and $a1 from stack
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+READS:
+#address where the read string has to be stored is passed in $a1 register.
+#put the save registers($s1,$s2) on to the stack
+addi $sp,-2
+sw $s2,$sp
+addi $sp,-2
+sw $s1,$sp
+and $s1,$zero
+#read the passed in address into $s1 register.
+or $s1,$a1
+#put the contents of $a1 register on to stack just incase
+addi $sp,-2
+sw $a1,$sp
+
+RSTART:
+# store the return address for this function on the stack)
+addi $sp,-2
+sw $ra,$sp
+and $v1,$zero
+#call READC function
+jal READC
+#restore the return address from stack
+lw $ra,$sp
+addi $sp,2
+
+#put LF in register for comparing with read character in jreq
+and $t1,$zero
+addi $t1,0xa
+la $t5, ENDREAD
+#load the character returned by READC into address pointed by $s1
+sb $v1,$s1
+#if readin char is newline then end read
+jreq $v1,$t1,$t5
+
+#if readin char is carriage return the end read
+and $t1,$zero
+addi $t1, 0xd
+jreq $v1,$t1,$t5
+#sb $v1,$s1
+
+addi $s1,1
+j RSTART
+ENDREAD:
+#add null termination
+addi $s1,1
+addi $t2,0
+sb $t2,$s1
+#restore the save registers from stack
+lw $a1,$sp
+addi $sp,2
+lw $s1,$sp
+addi $sp,2
+lw $s2,$sp
+addi $sp,2
+jreq $zero,$zero,$ra
+
+
+READC:
+#initialize register $t1 with 1 to compare the first bit of REG_IO_CONTROL
+and $t1, $zero
+addi $t1,1
+#initialize register $t2 with label so that it can be used for branch/jump
+and $t2, $zero
+la $t2,RLOOP
+RLOOP:
+#loads (address of) REG_IO_CONTROL into base register
+lui $base, 0xFF
+ori $base, 0x00
+#loads contents at address of REG_IO_CONTROL into register $t3
+lw $t3, $base
+#mask the rest of bits read from REG_IO_CONTROL except the first bit
+and $t3,$t1
+#checks if the first bit of REG_IO_CONTROL is set. if not set then loop back
+jrne $t3,$t1,$t2
+#at this point the first bit is set to 1. now load REG_IO_BUFFER into base register
+lui $base,0xFF
+ori $base,0x04
+#read/load the data in REG_IO_BUFFER into $v1 register
+lb $v1,$base
+#done. return to the calling function
+jreq $zero,$zero,$ra
+
+WRITEC:
+# character to be output is put in $a1 by calling function
+#initialize register $t1 with 2 to compare the second bit of REG_IO_CONTROL
+and $t1,$zero
+addi $t1,2
+#initialize register $t2 with label so that it can be used for branch/jump
+#instruction(jrne,jreq)
+and $t2, $zero
+la $t2, WLOOP
+WLOOP:
+#loads (address of) REG_IO_CONTROL into base register
+lui $base, 0xFF
+ori $base, 0x00
+#loads contents at address of REG_IO_CONTROL into register $t3
+lw $t3, $base
+#mask the rest of bits read from REG_IO_CONTROL except the second bit
+and $t3,$t1
+#checks if the second bit of REG_IO_CONTROL is set. if not set then loop back
+jrne $t3,$t1,$t2
+#at this point the bit is set. now load REG_IO_BUFFER into base register
+lui $base,0xFF
+ori $base,0x04
+#write/store the passed in parameter into REG_IO_BUFFER
+sb $a1,$base
+#done. return to the calling function
+jreq $zero,$zero,$ra
+
+.data
+
+PROMPT1:
+.asciiz "Enter the first number-"
+PROMPT2:
+.asciiz "Enter the second number-"
+RESPROMPT:
+.asciiz "The product is-"
+MAXNEGATIVE:
+.asciiz "-32768"
+OUTOFRANGE:
+.asciiz "Error-Number out of range"
+EMPTYSTR:
+.asciiz "Error-String is empty"

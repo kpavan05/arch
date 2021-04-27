@@ -1,0 +1,725 @@
+DEPTH = 16384;
+WIDTH = 16;
+ADDRESS_RADIX = HEX;
+DATA_RADIX = HEX;
+CONTENT
+BEGIN
+00: 102; --and $sp, $zero
+01: 31f0; --lui $sp, 0xF0
+02: 2100; --ori $sp, 0x00
+03: 3ff0; --lui $ra, 0xF0
+04: 2f00; --ori $ra, 0x00
+05: 602; --and $s1, $zero
+06: 702; --and $s2, $zero
+07: 3405;--la $a1, PROMPT1
+08: 24de;--la $a1, PROMPT1
+09: 11fe; --addi $sp, -2
+0a: 5f10; --sw $ra,$sp
+0b: b440; --jal WRITES
+0c: 4f10; --lw $ra,$sp
+0d: 1102; --addi $sp, 2
+0e: 11f0; --addi $sp, -16
+0f: 402; --and $a1, $zero
+10: 413; --or $a1, $sp
+11: 11fe; --addi $sp, -2
+12: 5f10; --sw $ra,$sp
+13: b498; --jal READS
+14: 4f10; --lw $ra,$sp
+15: 1102; --addi $sp, 2
+16: 11fe; --addi $sp, -2
+17: 5f10; --sw $ra,$sp
+18: b1aa; --jal CONVSTR2INT
+19: 3c00;--la $t5, START
+1a: 2c0a;--la $t5, START
+1b: 930c; --jrne $v2, $zero, $t5
+1c: 4f10; --lw $ra,$sp
+1d: 1102; --addi $sp, 2
+1e: 602; --and $s1, $zero
+1f: 623; --or $s1, $v1
+20: 1110; --addi $sp, 16
+21: 3405;--la $a1, PROMPT2
+22: 24f8;--la $a1, PROMPT2
+23: 11fe; --addi $sp, -2
+24: 5f10; --sw $ra,$sp
+25: b440; --jal WRITES
+26: 4f10; --lw $ra,$sp
+27: 1102; --addi $sp, 2
+28: 11f0; --addi $sp, -16
+29: 402; --and $a1, $zero
+2a: 413; --or $a1, $sp
+2b: 11fe; --addi $sp, -2
+2c: 5f10; --sw $ra,$sp
+2d: b498; --jal READS
+2e: 4f10; --lw $ra,$sp
+2f: 1102; --addi $sp, 2
+30: 11fe; --addi $sp, -2
+31: 5f10; --sw $ra,$sp
+32: b1aa; --jal CONVSTR2INT
+33: 3c00;--la $t5, START
+34: 2c0a;--la $t5, START
+35: 930c; --jrne $v2, $zero, $t5
+36: 4f10; --lw $ra,$sp
+37: 1102; --addi $sp, 2
+38: 702; --and $s2, $zero
+39: 723; --or $s2, $v1
+3a: 1110; --addi $sp, 16
+3b: 402; --and $a1, $zero
+3c: 463; --or $a1, $s1
+3d: 502; --and $a2, $zero
+3e: 573; --or $a2, $s2
+3f: 11fe; --addi $sp, -2
+40: 5f10; --sw $ra,$sp
+41: b0ee; --jal PROD
+42: 4f10; --lw $ra,$sp
+43: 1102; --addi $sp, 2
+44: 702; --and $s2, $zero
+45: 733; --or $s2, $v2
+46: 602; --and $s1, $zero
+47: 623; --or $s1, $v1
+48: 3d80; --lui $t6,0x80
+49: 2d00; --ori $t6,0x00
+4a: 3c00;--la $t5, NEGLIMIT
+4b: 2cce;--la $t5, NEGLIMIT
+4c: 8d2c; --jreq $t6, $v1, $t5
+4d: 11f0; --addi $sp, -16
+4e: 402; --and $a1, $zero
+4f: 502; --and $a2, $zero
+50: 463; --or $a1, $s1
+51: 513; --or $a2, $sp
+52: 11fe; --addi $sp, -2
+53: 5f10; --sw $ra,$sp
+54: b2c8; --jal CONVINT2STR
+55: 4f10; --lw $ra,$sp
+56: 1102; --addi $sp, 2
+57: 3406;--la $a1, RESPROMPT
+58: 2414;--la $a1, RESPROMPT
+59: 11fe; --addi $sp, -2
+5a: 5f10; --sw $ra,$sp
+5b: b440; --jal WRITES
+5c: 4f10; --lw $ra,$sp
+5d: 1102; --addi $sp, 2
+5e: 402; --and $a1, $zero
+5f: 453; --or $a1, $a2
+60: 11fe; --addi $sp, -2
+61: 5f10; --sw $ra,$sp
+62: b440; --jal WRITES
+63: 4f10; --lw $ra,$sp
+64: 1102; --addi $sp, 2
+65: 1110; --addi $sp, 16
+66: a00a; --j START
+67: 3406;--la $a1, RESPROMPT
+68: 2414;--la $a1, RESPROMPT
+69: 11fe; --addi $sp, -2
+6a: 5f10; --sw $ra,$sp
+6b: b440; --jal WRITES
+6c: 4f10; --lw $ra,$sp
+6d: 1102; --addi $sp, 2
+6e: 3406;--la $a1, MAXNEGATIVE
+6f: 2426;--la $a1, MAXNEGATIVE
+70: 11fe; --addi $sp, -2
+71: 5f10; --sw $ra,$sp
+72: b440; --jal WRITES
+73: 4f10; --lw $ra,$sp
+74: 1102; --addi $sp, 2
+75: a00a; --j START
+76: 800f; --jreq $zero, $zero, $ra
+77: 11fe; --addi $sp,-2
+78: 5710; --sw $s2,$sp
+79: 11fe; --addi $sp,-2
+7a: 5610; --sw $s1,$sp
+7b: 11fe; --addi $sp,-2
+7c: 5410; --sw $a1,$sp
+7d: 11fe; --addi $sp,-2
+7e: 5510; --sw $a2,$sp
+7f: 902; --and $t2, $zero
+80: 11fe; --addi $sp, -2
+81: 5910; --sw $t2, $sp
+82: 302; --and $v2, $zero
+83: d02; --and $t6, $zero
+84: 602; --and $s1,$zero
+85: 643; --or $s1, $a1
+86: 702; --and $s2, $zero
+87: 753; --or $s2, $a2
+88: 202; --and $v1, $zero
+89: 3c01;--la $t5, ENDPROD
+8a: 2c96;--la $t5, ENDPROD
+8b: 870c; --jreq $s2, $zero, $t5
+8c: 860c; --jreq $s1, $zero, $t5
+8d: 3c01;--la $t5, P1
+8e: 2c36;--la $t5, P1
+8f: 608; --slt $s1, $zero
+90: 9e0c; --jrne $base,$zero, $t5
+91: 708; --slt $s2, $zero
+92: 8e0c; --jreq $base, $zero, $t5
+93: a02; --and $t3, $zero
+94: a63; --or $t3, $s1
+95: 602; --and $s1, $zero
+96: 673; --or $s1, $s2
+97: 702; --and $s2, $zero
+98: 7a3; --or $s2, $t3
+99: 1901; --addi $t2 ,1
+9a: 5910; --sw $t2,$sp
+9b: 3c01;--la $t5, P2
+9c: 2c48;--la $t5, P2
+9d: 608; --slt $s1, $zero
+9e: 8e0c; --jreq $base,$zero, $t5
+9f: 708; --slt $s2, $zero
+a0: 9e0c; --jrne $base, $zero, $t5
+a1: 902; --and $t2, $zero
+a2: 1901; --addi $t2 ,1
+a3: 5910; --sw $t2,$sp
+a4: 3c01;--la $t5, P3
+a5: 2c5c;--la $t5, P3
+a6: 608; --slt $s1, $zero
+a7: 8e0c; --jreq $base,$zero, $t5
+a8: 708; --slt $s2, $zero
+a9: 8e0c; --jreq $base, $zero, $t5
+aa: 605; --nor $s1, $zero
+ab: 1601; --addi $s1, 1
+ac: 705; --nor $s2, $zero
+ad: 1701; --addi $s2, 1
+ae: 3c01;--la $t5, ENDPROD
+af: 2c96;--la $t5, ENDPROD
+b0: a02; --and $t3, $zero
+b1: 1a10; --addi $t3, 16
+b2: 8dac; --jreq $t6,$t3,$t5
+b3: a02; --and $t3 ,$zero
+b4: 1a01; --addi $t3,1
+b5: 202; --and $v1,$zero
+b6: 273; --or $v1,$s2
+b7: b02; --and $t4,$zero
+b8: 1b01; --addi $t4,1
+b9: b72; --and $t4,$s2
+ba: 3c01;--la $t5, P4
+bb: 2c7c;--la $t5, P4
+bc: 9bac; --jrne $t4 ,$t3,$t5
+bd: 360; --add $v2, $s1
+be: b02; --and $t4,$zero
+bf: 1b01; --addi $t4,1
+c0: b32; --and $t4,$v2
+c1: 3a7; --srl $v2, $t3
+c2: 7a7; --srl $s2, $t3
+c3: 902; --and $t2,$zero
+c4: 190f; --addi $t2, 15
+c5: b96; --sll $t4 ,$t2
+c6: 7b0; --add $s2,$t4
+c7: 1d01; --addi $t6, 1
+c8: 202; --and $v1,$zero
+c9: 273; --or $v1,$s2
+ca: a15c; --j P3
+cb: 1102; --addi $sp, 2
+cc: 4410; --lw $a1,$sp
+cd: 1102; --addi $sp,2
+ce: 4410; --lw $a1,$sp
+cf: 1102; --addi $sp,2
+d0: 4610; --lw $s1,$sp
+d1: 1102; --addi $sp,2
+d2: 4710; --lw $s2,$sp
+d3: 1102; --addi $sp,2
+d4: 800f; --jreq $zero,$zero,$ra
+d5: 11fe; --addi $sp,-2
+d6: 5710; --sw $s2,$sp
+d7: 11fe; --addi $sp,-2
+d8: 5610; --sw $s1,$sp
+d9: 11fe; --addi $sp,-2
+da: 5410; --sw $a1,$sp
+db: 602; --and $s1,$zero
+dc: 640; --add $s1, $a1
+dd: 202; --and $v1, $zero
+de: 702; --and $s2, $zero
+df: 6860; --lb $t1,$s1
+e0: 3c01;--la $t5, CHK
+e1: 2cd8;--la $t5, CHK
+e2: 980c; --jrne $t1, $zero, $t5
+e3: 3406;--la $a1, EMPTYSTR
+e4: 244c;--la $a1, EMPTYSTR
+e5: 11fe; --addi $sp, -2
+e6: 5f10; --sw $ra,$sp
+e7: b440; --jal WRITES
+e8: 4f10; --lw $ra,$sp
+e9: 1102; --addi $sp, 2
+ea: 13ff; --addi $v2, -1
+eb: a2ba; --j ENDCONVSTR
+ec: 11fe; --addi $sp, -2
+ed: 5010; --sw $zero , $sp
+ee: 11fe; --addi $sp, -2
+ef: 5010; --sw $zero, $sp
+f0: 3c02;--la $t5, CENDLOOP
+f1: 2ca2;--la $t5, CENDLOOP
+f2: 6860; --lb $t1, $s1
+f3: 902; --and $t2, $zero
+f4: 190a; --addi $t2, 10
+f5: 889c; --jreq $t1, $t2, $t5
+f6: 880c; --jreq $t1, $zero, $t5
+f7: 902; --and $t2, $zero
+f8: 190d; --addi $t2, 0xd
+f9: 889c; --jreq $t1, $t2, $t5
+fa: 3c02;--la $t5, CV1
+fb: 2c10;--la $t5, CV1
+fc: 970c; --jrne $s2, $zero, $t5
+fd: 902; --and $t2, $zero
+fe: 192d; --addi $t2, 45
+ff: 989c; --jrne $t1, $t2, $t5
+100: a02; --and $t3,$zero
+101: 1a01; --addi $t3, 1
+102: 1102; --addi $sp, 2
+103: 5a10; --sw $t3, $sp
+104: 11fe; --addi $sp, -2
+105: 1701; --addi $s2, 1
+106: 1601; --addi $s1, 1
+107: a1e0; --j CVLOOP
+108: 3c02;--la $t5, CVOFRANGE
+109: 2c68;--la $t5, CVOFRANGE
+10a: 4a10; --lw $t3, $sp
+10b: 1a01; --addi $t3, 1
+10c: 902; --and $t2, $zero
+10d: 1905; --addi $t2, 5
+10e: 9a8; --slt $t2, $t3
+10f: 5a10; --sw $t3, $sp
+110: 9e0c; --jrne $base, $zero, $t5
+111: 3c02;--la $t5, CV2
+112: 2c7e;--la $t5, CV2
+113: 3a0c; --lui $t3,0x0c
+114: 2acc; --ori $t3,0xcc
+115: 3c02;--la $t5 , CVEDGE
+116: 2c3e;--la $t5 , CVEDGE
+117: 8a2c; --jreq $t3, $v1, $t5
+118: 3c02;--la $t5, CV2
+119: 2c7e;--la $t5, CV2
+11a: a28; --slt $t3, $v1
+11b: 8e0c; --jreq $base, $zero,$t5
+11c: 3c02;--la $t5, CVOFRANGE
+11d: 2c68;--la $t5, CVOFRANGE
+11e: 9a2c; --jrne $t3, $v1, $t5
+11f: 3c02;--la $t5, CHKPOS
+120: 2c5c;--la $t5, CHKPOS
+121: 1102; --addi $sp, 2
+122: 4b10; --lw $t4, $sp
+123: 11fe; --addi $sp, -2
+124: d02; --and $t6, $zero
+125: 1d01; --addi $t6, 1
+126: 9bdc; --jrne $t4, $t6, $t5
+127: 3c02;--la $t5, CV2
+128: 2c7e;--la $t5, CV2
+129: a02; --and $t3,$zero
+12a: 1a38; --addi $t3, 56
+12b: a88; --slt $t3, $t1
+12c: 8e0c; --jreq $base,$zero, $t5
+12d: a268; --j CVOFRANGE
+12e: 3c02;--la $t5, CV2
+12f: 2c7e;--la $t5, CV2
+130: a02; --and $t3,$zero
+131: 1a37; --addi $t3, 55
+132: a88; --slt $t3, $t1
+133: 8e0c; --jreq $base,$zero, $t5
+134: 3406;--la $a1, OUTOFRANGE
+135: 2430;--la $a1, OUTOFRANGE
+136: 11fe; --addi $sp, -2
+137: 5f10; --sw $ra,$sp
+138: b440; --jal WRITES
+139: 4f10; --lw $ra,$sp
+13a: 1102; --addi $sp, 2
+13b: 13ff; --addi $v2, -1
+13c: 1102; --addi $sp ,2
+13d: 1102; --addi $sp ,2 
+13e: a2ba; --j ENDCONVSTR
+13f: 11fe; --addi $sp, -2
+140: 5810; --sw $t1,$sp
+141: 11fe; --addi $sp, -2
+142: 5f10; --sw $ra,$sp
+143: 502; --and $a2, $zero
+144: 402; --and $a1, $zero
+145: 420; --add $a1, $v1
+146: 150a; --addi $a2, 10
+147: b0ee; --jal PROD
+148: 4f10; --lw $ra,$sp
+149: 1102; --addi $sp, 2
+14a: 4810; --lw $t1,$sp
+14b: 1102; --addi $sp, 2
+14c: 18d0; --addi $t1,-48
+14d: 280; --add $v1, $t1
+14e: 1601; --addi $s1, 1
+14f: 1701; --addi $s2, 1
+150: a1e0; --j CVLOOP
+151: 1102; --addi $sp, 2
+152: 302; --and $v2, $zero
+153: 1300; --addi $v2, 0
+154: 3c02;--la $t5, ENDCONVSTR
+155: 2cba;--la $t5, ENDCONVSTR
+156: 4a10; --lw $t3,$sp
+157: 1102; --addi $sp, 2
+158: d02; --and $t6, $zero
+159: 1d01; --addi $t6, 1
+15a: 9adc; --jrne $t3, $t6, $t5
+15b: 205; --nor $v1, $zero
+15c: 1201; --addi $v1,1
+15d: 4410; --lw $a1,$sp
+15e: 1102; --addi $sp,2
+15f: 4610; --lw $s1,$sp
+160: 1102; --addi $sp,2
+161: 4710; --lw $s2,$sp
+162: 1102; --addi $sp,2
+163: 800f; --jreq $zero,$zero,$ra
+164: 11fe; --addi $sp,-2
+165: 5710; --sw $s2,$sp
+166: 11fe; --addi $sp,-2
+167: 5610; --sw $s1,$sp
+168: 11fe; --addi $sp,-2
+169: 5410; --sw $a1,$sp
+16a: 11fe; --addi $sp,-2
+16b: 5510; --sw $a2,$sp
+16c: 602; --and $s1,$zero
+16d: 802; --and $t1,$zero
+16e: 843; --or $t1,$a1
+16f: 653; --or $s1,$a2
+170: 11f0; --addi $sp,-16
+171: 702; --and $s2,$zero
+172: 710; --add $s2,$sp
+173: 3c02;--la $t5, SIGNCHK
+174: 2cf6;--la $t5, SIGNCHK
+175: 980c; --jrne $t1,$zero,$t5
+176: 902; --and $t2,$zero
+177: 1930; --addi $t2,48
+178: 7960; --sb $t2,$s1
+179: 1601; --addi $s1, 1
+17a: a338; --j ENDCONV
+17b: 3c03;--la $t5, SETUPDIV
+17c: 2c06;--la $t5, SETUPDIV
+17d: 808; --slt $t1,$zero
+17e: 8e0c; --jreq $base,$zero,$t5
+17f: 902; --and $t2,$zero
+180: 192d; --addi $t2,45
+181: 7960; --sb $t2, $s1
+182: 1601; --addi $s1, 1
+183: 402; --and $a1,$zero
+184: 480; --add $a1,$t1
+185: 11fe; --addi $sp, -2
+186: 5f10; --sw $ra,$sp
+187: 202; --and $v1,$zero
+188: 302; --and $v2,$zero
+189: b350; --jal DIV
+18a: 4f10; --lw $ra,$sp
+18b: 1102; --addi $sp, 2
+18c: 1230; --addi $v1, 48
+18d: 7270; --sb $v1, $s2
+18e: 1701; --addi $s2, 1
+18f: 802; --and $t1,$zero
+190: 830; --add $t1, $v2
+191: 3c03;--la $t5, SETUPDIV
+192: 2c06;--la $t5, SETUPDIV
+193: 980c; --jrne $t1, $zero, $t5
+194: 3c03;--la $t5,SREVERSE
+195: 2c2c;--la $t5,SREVERSE
+196: 17ff; --addi $s2,-1
+197: 6970; --lb $t2,$s2
+198: 7960; --sb $t2, $s1
+199: 1601; --addi $s1, 1
+19a: 178; --slt $sp,$s2
+19b: 9e0c; --jrne $base,$zero,$t5
+19c: 902; --and $t2,$zero
+19d: 7960; --sb $t2, $s1
+19e: 1110; --addi $sp, 16
+19f: 4510; --lw $a2,$sp
+1a0: 1102; --addi $sp,2
+1a1: 4410; --lw $a1,$sp
+1a2: 1102; --addi $sp,2
+1a3: 4610; --lw $s1,$sp
+1a4: 1102; --addi $sp,2
+1a5: 4710; --lw $s2,$sp
+1a6: 1102; --addi $sp,2
+1a7: 800f; --jreq $zero,$zero,$ra
+1a8: 11fe; --addi $sp,-2
+1a9: 5710; --sw $s2,$sp
+1aa: 11fe; --addi $sp,-2
+1ab: 5610; --sw $s1,$sp
+1ac: 11fe; --addi $sp,-2
+1ad: 5410; --sw $a1,$sp
+1ae: 202; --and $v1,$zero
+1af: 302; --and $v2, $zero
+1b0: 702; --and $s2,$zero
+1b1: 170a; --addi $s2,10
+1b2: 602; --and $s1,$zero
+1b3: 640; --add $s1,$a1
+1b4: 802; --and $t1, $zero
+1b5: 3c04;--la $t5, ENDDIV
+1b6: 2c32;--la $t5, ENDDIV
+1b7: 860c; --jreq $s1, $zero, $t5
+1b8: 3c03;--la $t5, DV1
+1b9: 2c7e;--la $t5, DV1
+1ba: 608; --slt $s1,$zero
+1bb: 8e0c; --jreq $base,$zero,$t5
+1bc: 1801; --addi $t1 ,1
+1bd: 605; --nor $s1,$zero
+1be: 1601; --addi $s1, 1
+1bf: 3c03;--la $t5, DV2
+1c0: 2c8a;--la $t5, DV2
+1c1: 967c; --jrne $s1,$s2, $t5
+1c2: 1301; --addi $v2, 1
+1c3: 1200; --addi $v1, 0
+1c4: a432; --j ENDDIV
+1c5: 3c03;--la $t5, DV3
+1c6: 2c98;--la $t5, DV3
+1c7: 678; --slt $s1,$s2
+1c8: 8e0c; --jreq $base, $zero, $t5
+1c9: 1300; --addi $v2, 0
+1ca: 260; --add $v1, $s1
+1cb: a432; --j ENDDIV
+1cc: 202; --and $v1, $zero
+1cd: 280; --add $v1, $t1
+1ce: 802; --and $t1, $zero
+1cf: 902; --and $t2, $zero
+1d0: d02; --and $t6, $zero
+1d1: 960; --add $t2, $s1
+1d2: 3a80; --lui $t3, 0x80
+1d3: 2a00; --ori $t3, 0x00
+1d4: a92; --and $t3, $t2
+1d5: b02; --and $t4, $zero
+1d6: 1b0f; --addi $t4, 15
+1d7: ab7; --srl $t3 ,$t4
+1d8: b02; --and $t4, $zero
+1d9: 1b01; --addi $t4, 1
+1da: 8b6; --sll $t1, $t4
+1db: 9b6; --sll $t2, $t4
+1dc: 8a0; --add $t1,$t3
+1dd: b02; --and $t4, $zero
+1de: 1b10; --addi $t4, 16
+1df: 3c04;--la $t5, DV6
+1e0: 2c0e;--la $t5, DV6
+1e1: 8dbc; --jreq $t6, $t4, $t5
+1e2: 871; --sub $t1, $s2
+1e3: 808; --slt $t1, $zero
+1e4: 3c03;--la $t5, DV5
+1e5: 2cee;--la $t5, DV5
+1e6: 9e0c; --jrne $base, $zero, $t5
+1e7: b02; --and $t4, $zero
+1e8: 1b01; --addi $t4, 1
+1e9: 8b6; --sll $t1, $t4
+1ea: 3a80; --lui $t3, 0x80
+1eb: 2a00; --ori $t3, 0x00
+1ec: a92; --and $t3, $t2
+1ed: b02; --and $t4, $zero
+1ee: 1b0f; --addi $t4, 15
+1ef: ab7; --srl $t3 ,$t4
+1f0: 8a0; --add $t1,$t3
+1f1: b02; --and $t4, $zero
+1f2: 1b01; --addi $t4, 1
+1f3: 9b6; --sll $t2, $t4
+1f4: 1901; --addi $t2,1
+1f5: 1d01; --addi $t6, 1
+1f6: a3ba; --j DV4
+1f7: 870; --add $t1, $s2
+1f8: b02; --and $t4, $zero
+1f9: 1b01; --addi $t4, 1
+1fa: 8b6; --sll $t1, $t4
+1fb: 3a80; --lui $t3, 0x80
+1fc: 2a00; --ori $t3, 0x00
+1fd: a92; --and $t3, $t2
+1fe: b02; --and $t4, $zero
+1ff: 1b0f; --addi $t4, 15
+200: ab7; --srl $t3 ,$t4
+201: 8a0; --add $t1,$t3
+202: b02; --and $t4, $zero
+203: 1b01; --addi $t4, 1
+204: 9b6; --sll $t2, $t4
+205: 1d01; --addi $t6, 1
+206: a3ba; --j DV4
+207: b02; --and $t4, $zero
+208: 1b01; --addi $t4,1
+209: 8b7; --srl $t1, $t4
+20a: d02; --and $t6, $zero
+20b: d20; --add $t6, $v1
+20c: 202; --and $v1, $zero
+20d: 280; --add $v1, $t1
+20e: b02; --and $t4, $zero
+20f: 1b01; --addi $t4,1
+210: 302; --and $v2, $zero
+211: 390; --add $v2,$t2
+212: 3c04;--la $t5, ENDDIV
+213: 2c32;--la $t5, ENDDIV
+214: 9dbc; --jrne $t6, $t4, $t5
+215: 905; --nor $t2,$zero
+216: 1901; --addi $t2,1
+217: 302; --and $v2, $zero
+218: 390; --add $v2, $t2
+219: 4410; --lw $a1,$sp
+21a: 1102; --addi $sp,2
+21b: 4610; --lw $s1,$sp
+21c: 1102; --addi $sp,2
+21d: 4710; --lw $s2,$sp
+21e: 1102; --addi $sp,2
+21f: 800f; --jreq $zero,$zero,$ra
+220: 11fe; --addi $sp,-2
+221: 5710; --sw $s2,$sp
+222: 11fe; --addi $sp,-2
+223: 5610; --sw $s1,$sp
+224: 602; --and $s1,$zero
+225: 643; --or $s1,$a1
+226: 11fe; --addi $sp,-2
+227: 5410; --sw $a1,$sp
+228: 402; --and $a1, $zero
+229: 3c04;--la $t5, ENDWRITE
+22a: 2c6e;--la $t5, ENDWRITE
+22b: 6460; --lb $a1,$s1
+22c: 840c; --jreq $a1, $zero, $t5
+22d: d02; --and $t6,$zero
+22e: 1d0d; --addi $t6,0xd
+22f: 84dc; --jreq $a1, $t6,$t5
+230: 11fe; --addi $sp,-2
+231: 5f10; --sw $ra,$sp
+232: b4fa; --jal WRITEC
+233: 4f10; --lw $ra,$sp
+234: 1102; --addi $sp,2
+235: 1601; --addi $s1,1
+236: a450; --j WSTART
+237: 11fe; --addi $sp, -2
+238: 5f10; --sw $ra,$sp
+239: 402; --and $a1, $zero
+23a: 140d; --addi $a1, 13
+23b: b4fa; --jal WRITEC
+23c: 4f10; --lw $ra,$sp
+23d: 1102; --addi $sp, 2
+23e: 11fe; --addi $sp, -2
+23f: 5f10; --sw $ra,$sp
+240: 402; --and $a1, $zero
+241: 140a; --addi $a1, 10
+242: b4fa; --jal WRITEC
+243: 4f10; --lw $ra,$sp
+244: 1102; --addi $sp, 2
+245: 4410; --lw $a1,$sp
+246: 1102; --addi $sp,2
+247: 4610; --lw $s1,$sp
+248: 1102; --addi $sp,2
+249: 4710; --lw $s2,$sp
+24a: 1102; --addi $sp,2
+24b: 800f; --jreq $zero,$zero,$ra
+24c: 11fe; --addi $sp,-2
+24d: 5710; --sw $s2,$sp
+24e: 11fe; --addi $sp,-2
+24f: 5610; --sw $s1,$sp
+250: 602; --and $s1,$zero
+251: 643; --or $s1,$a1
+252: 11fe; --addi $sp,-2
+253: 5410; --sw $a1,$sp
+254: 11fe; --addi $sp,-2
+255: 5f10; --sw $ra,$sp
+256: 202; --and $v1,$zero
+257: b4de; --jal READC
+258: 4f10; --lw $ra,$sp
+259: 1102; --addi $sp,2
+25a: 802; --and $t1,$zero
+25b: 180a; --addi $t1,0xa
+25c: 3c04;--la $t5, ENDREAD
+25d: 2cca;--la $t5, ENDREAD
+25e: 7260; --sb $v1,$s1
+25f: 828c; --jreq $v1,$t1,$t5
+260: 802; --and $t1,$zero
+261: 180d; --addi $t1, 0xd
+262: 828c; --jreq $v1,$t1,$t5
+263: 1601; --addi $s1,1
+264: a4a8; --j RSTART
+265: 1601; --addi $s1,1
+266: 1900; --addi $t2,0
+267: 7960; --sb $t2,$s1
+268: 4410; --lw $a1,$sp
+269: 1102; --addi $sp,2
+26a: 4610; --lw $s1,$sp
+26b: 1102; --addi $sp,2
+26c: 4710; --lw $s2,$sp
+26d: 1102; --addi $sp,2
+26e: 800f; --jreq $zero,$zero,$ra
+26f: 802; --and $t1, $zero
+270: 1801; --addi $t1,1
+271: 902; --and $t2, $zero
+272: 3904;--la $t2,RLOOP
+273: 29e8;--la $t2,RLOOP
+274: 3eff; --lui $base, 0xFF
+275: 2e00; --ori $base, 0x00
+276: 4ae0; --lw $t3, $base
+277: a82; --and $t3,$t1
+278: 9a89; --jrne $t3,$t1,$t2
+279: 3eff; --lui $base,0xFF
+27a: 2e04; --ori $base,0x04
+27b: 62e0; --lb $v1,$base
+27c: 800f; --jreq $zero,$zero,$ra
+27d: 802; --and $t1,$zero
+27e: 1802; --addi $t1,2
+27f: 902; --and $t2, $zero
+280: 3905;--la $t2, WLOOP
+281: 2904;--la $t2, WLOOP
+282: 3eff; --lui $base, 0xFF
+283: 2e00; --ori $base, 0x00
+284: 4ae0; --lw $t3, $base
+285: a82; --and $t3,$t1
+286: 9a89; --jrne $t3,$t1,$t2
+287: 3eff; --lui $base,0xFF
+288: 2e04; --ori $base,0x04
+289: 74e0; --sb $a1,$base
+28a: 800f; --jreq $zero,$zero,$ra
+2ef: 6e45;
+2f0: 6574;
+2f1: 2072;
+2f2: 6874;
+2f3: 2065;
+2f4: 6966;
+2f5: 7372;
+2f6: 2074;
+2f7: 756e;
+2f8: 626d;
+2f9: 7265;
+2fa: 2d;
+2fb: 00;
+2fc: 6e45;
+2fd: 6574;
+2fe: 2072;
+2ff: 6874;
+300: 2065;
+301: 6573;
+302: 6f63;
+303: 646e;
+304: 6e20;
+305: 6d75;
+306: 6562;
+307: 2d72;
+308: 00;
+309: 00;
+30a: 6854;
+30b: 2065;
+30c: 7270;
+30d: 646f;
+30e: 6375;
+30f: 2074;
+310: 7369;
+311: 2d;
+312: 00;
+313: 332d;
+314: 3732;
+315: 3836;
+316: 00;
+317: 00;
+318: 7245;
+319: 6f72;
+31a: 2d72;
+31b: 754e;
+31c: 626d;
+31d: 7265;
+31e: 6f20;
+31f: 7475;
+320: 6f20;
+321: 2066;
+322: 6172;
+323: 676e;
+324: 65;
+325: 00;
+326: 7245;
+327: 6f72;
+328: 2d72;
+329: 7453;
+32a: 6972;
+32b: 676e;
+32c: 6920;
+32d: 2073;
+32e: 6d65;
+32f: 7470;
+330: 79;
+331: 00;
+END
